@@ -1,0 +1,23 @@
+
+  {{WG_SITENAME}}:
+    container_name: {{WG_SITENAME}}
+    image: inzania/wordgate:latest
+    restart: always
+    environment:
+      WG_SITENAME: {{WG_SITENAME}}
+      WG_SERVER_NAME: {{WG_SITENAME}}.com www.{{WG_SITENAME}}.com {{WG_SITENAME}}.localhost
+      WG_FPM_HOST: {{WG_SITENAME}}
+      WG_FPM_PORT: {{WG_FPM_PORT}}
+      WG_S3_BUCKET: ${WG_S3_BUCKET}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      WORDPRESS_DB_HOST: mysql
+      AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+      AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+    volumes:
+      - $HOME/wordgate/logs:/var/log
+      - $HOME/wordgate/nginx:/etc/nginx/conf.d
+      - $HOME/wordgate/sites/{{WG_SITENAME}}:/var/www/html/{{WG_SITENAME}}
+    links:
+      - mysql
+    depends_on:
+      - mysql

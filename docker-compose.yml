@@ -1,19 +1,6 @@
 version: '3.3'
 
 services:
-  nginx:
-    image: nginx:latest
-    container_name: nginx
-    ports:
-      - '8080:80'
-    volumes:
-      - ./nginx:/etc/nginx/conf.d
-      - ./data/logs/nginx:/var/log/nginx
-      - ./data/sites:/var/www/html
-    links:
-      - makerbuildlog
-    restart: always
-
   mysql:
     container_name: mysql
     image: mysql:5.6 # Compatible w/ Aurora
@@ -23,25 +10,91 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: example
 
-  makerbuildlog:
-    container_name: makerbuildlog
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - '8080:80'
+    volumes:
+      - $HOME/wordgate/logs:/var/log/nginx
+      - $HOME/wordgate/nginx:/etc/nginx/conf.d
+      - ~/wordgate/sites/experium:/var/www/html/experium
+      - ~/wordgate/sites/makerbuildlog:/var/www/html/makerbuildlog
+      - ~/wordgate/sites/skillcookbook:/var/www/html/skillcookbook
+    links:
+      - experium
+      - makerbuildlog
+      - skillcookbook
+    depends_on:
+      - experium
+      - makerbuildlog
+      - skillcookbook
+
+  experium:
+    container_name: experium
     image: inzania/wordgate:latest
     restart: always
-    build:
-      context: .
     environment:
-      WG_S3_BUCKET: inzania
-      WG_S3_PATH: sites/makerbuildlog/
-      WORDPRESS_DB_PASSWORD: example
+      WG_SITENAME: experium
+      WG_SERVER_NAME: experium.com www.experium.com experium.localhost
+      WG_FPM_HOST: experium
+      WG_FPM_PORT: 9000
+      WG_S3_BUCKET: ${WG_S3_BUCKET}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
       WORDPRESS_DB_HOST: mysql
       AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
       AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
     volumes:
-      - ./data/logs/makerbuildlog:/var/log
-      - ./data/sites/makerbuildlog:/var/www/html/makerbuildlog
+      - $HOME/wordgate/logs:/var/log
+      - $HOME/wordgate/nginx:/etc/nginx/conf.d
+      - $HOME/wordgate/sites/experium:/var/www/html/experium
     links:
       - mysql
     depends_on:
       - mysql
-    ports:
-      - "9000:9000"
+
+  makerbuildlog:
+    container_name: makerbuildlog
+    image: inzania/wordgate:latest
+    restart: always
+    environment:
+      WG_SITENAME: makerbuildlog
+      WG_SERVER_NAME: makerbuildlog.com www.makerbuildlog.com makerbuildlog.localhost
+      WG_FPM_HOST: makerbuildlog
+      WG_FPM_PORT: 9001
+      WG_S3_BUCKET: ${WG_S3_BUCKET}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      WORDPRESS_DB_HOST: mysql
+      AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+      AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+    volumes:
+      - $HOME/wordgate/logs:/var/log
+      - $HOME/wordgate/nginx:/etc/nginx/conf.d
+      - $HOME/wordgate/sites/makerbuildlog:/var/www/html/makerbuildlog
+    links:
+      - mysql
+    depends_on:
+      - mysql
+
+  skillcookbook:
+    container_name: skillcookbook
+    image: inzania/wordgate:latest
+    restart: always
+    environment:
+      WG_SITENAME: skillcookbook
+      WG_SERVER_NAME: skillcookbook.com www.skillcookbook.com skillcookbook.localhost
+      WG_FPM_HOST: skillcookbook
+      WG_FPM_PORT: 9002
+      WG_S3_BUCKET: ${WG_S3_BUCKET}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      WORDPRESS_DB_HOST: mysql
+      AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+      AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+    volumes:
+      - $HOME/wordgate/logs:/var/log
+      - $HOME/wordgate/nginx:/etc/nginx/conf.d
+      - $HOME/wordgate/sites/skillcookbook:/var/www/html/skillcookbook
+    links:
+      - mysql
+    depends_on:
+      - mysql
