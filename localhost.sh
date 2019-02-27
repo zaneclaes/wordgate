@@ -1,6 +1,8 @@
 #!/bin/sh
 docker-compose stop
 
+LOG_APP="Wordgate"
+
 if [[ -z "$@" ]]; then
   sites=$(ls ~/wordgate/sites | tr '\n' ' ')
   if [[ -z "$sites" ]]; then

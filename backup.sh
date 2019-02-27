@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Find HTML modified in the last minute (since this is scheduled on 1-minute interval).
 HTML_PATH="/var/www/html/${2}"
-modified=$(find "$HTML_PATH" -mmin -1)
+modified=$(find "$HTML_PATH" -mmin -1 -type f ! -path '*/mmr/*')
 
 if [[ -z "$modified" ]]; then
   cmd="$HTML_PATH/backup.cmd"
@@ -15,7 +15,11 @@ if [[ -z "$modified" ]]; then
   fi
 fi
 
+echo "--------------------"
 echo "Beginning '$1' backup of modified files from $2 to $3..."
+echo "--------------------"
+echo "$modified"
+echo "--------------------"
 # if [[ "$1" = *"zip"* ]]; then
 # fi
 
