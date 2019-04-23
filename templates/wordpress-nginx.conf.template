@@ -5,8 +5,8 @@
     root /var/www/html/{{WG_SITENAME}};
     index index.php;
 
-    access_log {{WG_ACCESS_LOG}};
-    error_log {{WG_ERROR_LOG}} {{WG_ERROR_LEVEL}};
+    access_log /dev/stdout main;
+    error_log /dev/stderr warn;
 
     location ~* \.(eot|otf|ttf|woff|woff2)$ {
         add_header Access-Control-Allow-Origin *;
@@ -19,7 +19,7 @@
     location ~ \.php$ {
         try_files $uri =404;
         fastcgi_split_path_info ^(.+\.php)(/.+)$;
-        fastcgi_pass {{WG_FPM_HOST}}:{{WG_FPM_PORT}};
+        fastcgi_pass localhost:{{WG_FPM_PORT}};
         fastcgi_index index.php;
         include fastcgi_params;
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;

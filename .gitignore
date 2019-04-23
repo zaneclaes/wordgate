@@ -1,5 +1,3 @@
 .DS_Store
 data
 .data
-docker-compose.yml
-ecs-task.json
